@@ -25,15 +25,15 @@ students = {
 }
 
 spells = {
- {
+    '1': {
     'student_id': '1',
     'body': "Expeliamus!!"
  },
- {
+    '2': {
     'student_id': '2',
     'body': "Stupify!"
  },
- {
+    '3': {
      'student_id': '4',
      'body': "Avada Kadava"
  },
