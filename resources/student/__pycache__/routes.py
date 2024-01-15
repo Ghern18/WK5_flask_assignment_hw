@@ -1,14 +1,16 @@
 from flask import Flask, request, jsonify
 from uuid import uuid4
-from db import spells, students
+
+from . import bp
+from db import students
 
 app = Flask(__name__)
 
-@app.get('/student')
+@bp.get('/student')
 def get_students():
     return jsonify({'students': list(students.values())}), 200
 
-@app.get('/student/<student_id>')
+@bp.get('/student/<student_id>')
 def get_student(student_id):
     try:
         student = students[student_id]
@@ -16,7 +18,7 @@ def get_student(student_id):
     except KeyError:
         return {'message': 'Student not found'}, 404
 
-@app.post('/student')
+@bp.post('/student')
 def create_student():
     student_data = request.get_json()
     required_fields = ['student', 'email', 'house', 'password']
@@ -29,7 +31,7 @@ def create_student():
     students[student_id] = student_data
     return {'message': f'{student_data["student"]} is sorted in a house'}, 201
 
-@app.put('/student/<student_id>')
+@bp.put('/student/<student_id>')
 def update_student(student_id):
     try:
         student = students[student_id]
@@ -44,7 +46,7 @@ def update_student(student_id):
     except Exception as e:
         return {'message': str(e)}, 500
 
-@app.delete('/student/<student_id>')
+@bp.delete('/student/<student_id>')
 def delete_student(student_id):
     try:
         del students[student_id]
