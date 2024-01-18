@@ -4,16 +4,19 @@ students = {
     'student': 'harry',
     'email' : 'harrypotter@ct.com',
     'house' : 'gryffindor',
+    'password': 'SeriousSnape9-3/14',
  },
  '2' : {
     'student': "ron",
     'email': 'ronweasley@ct.com',
-    'house' : 'gryffindor'
+    'house' : 'gryffindor',
+    'password': 'Ruffus123',
  },
  '3' : {
     'student': "hermione",
     'email': 'hermionegranger@ct.com',
     'house' : 'gryffindor',
+    'password': 'Muggles19034u2308Rule!'
  },
  '4' : {
     'student': "draco",
