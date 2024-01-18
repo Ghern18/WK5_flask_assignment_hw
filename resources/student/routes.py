@@ -35,20 +35,26 @@ class Student(MethodView):
         student = StudentModel.query.get(student_id)
         if student:
             student.delete()
-            return { 'message': f'Student: {student.student} Ezpelled!' }, 202
+            return { 'message': f'Student: {student.student} Expelled!' }, 202
         return {'message': "Student not found in campus"}, 400
 
 @bp.route('/student')   
-class UserList(MethodView):
+class StudentList(MethodView):
     
     @bp.response(200, StudentSchema(many = True))
     def get(self):
-        return list(students.values())
+        return StudentModel.query.all()
     
     @bp.arguments(StudentSchema)
     def post(self, student_data):
-        students[uuid4()] = student_data
-        return { 'message' : f'{student_data["student"]} created'}, 201
+        try: 
+            student = StudentModel()
+            student.from_dict(student_data)
+            student.commit()
+            return { 'message' : f'{student_data["Student"]} sorted in a House!' }, 201
+        except:
+            abort(400, message='Student Sorted in the Wrong House')
+
 
 #@bp.response(200, StudentSchema(many=True))
 #@bp.get('/student')
