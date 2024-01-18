@@ -12,8 +12,8 @@ api = Api(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-from models.student_model import UserModel
-from models.SpellModel import PostModel
+from models.student_model import StudentModel
+from models.SpellModel import SpellModel
 
 from resources.student import bp as student_bp
 api.register_blueprint(student_bp)
