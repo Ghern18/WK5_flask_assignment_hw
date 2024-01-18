@@ -1,7 +1,7 @@
 from flask import Flask, request
 from uuid import uuid4
 from flask.views import MethodView
-
+from flask_smorest import abort
 from models.SpellModel import SpellModel
 from schemas import SpellSchema
 from db import spells, students
