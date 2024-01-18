@@ -15,3 +15,4 @@ class SpellSchema(Schema):
     body = fields.Str(required = True)
     timestamp = fields.DateTime(dump_only = True)
     student_id = fields.Str(required = True)
+
