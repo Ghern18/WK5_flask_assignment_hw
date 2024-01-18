@@ -1,43 +1,42 @@
 from flask import Flask, request
 from uuid import uuid4
 from flask.views import MethodView
-
+from flask_smorest import abort
 from . import bp
 from db import students
 
+
 from schemas import StudentSchema
+from models.student_model import StudentModel
 
 
 @bp.route('/student/<student_id>')
 class Student(MethodView):
+
     @bp.response(200,StudentSchema)
-    def get(self, student_id):
-        try:
-            return students[student_id]
-        except:
-            return {'message': 'Student not found'}, 400
+    def get(self,student_id):
+        student = StudentModel.query.get(student_id)
+        if student:
+            return student
+        else:
+            abort(400, message='Studnet not found in campus')
         
     @bp.arguments(StudentSchema)
     def put(self, student_data, student_id):
-        try:
-            student = students[student_id]
-            student_data = request.get_json()
-            for k, v in student_data.items():
-                student[k] = v
-                return {'message': f'{student["student"]} updated'}, 202
-        except KeyError:
-            return {'message': 'Student not found'}, 404
-        except Exception as e:
-            return {'message': str(e)}, 500
+        student = StudentModel.query.get(student_id)
+        if student:
+            student.from_dict(student_data)
+            student.commit()
+            return { 'message': f'{student.student} sorted in a house'}, 202
+        abort(400, message = "Student not found in campus")
+
 
     def delete(self, student_id):
-        try:
-            del students[student_id]
-            return {'message': f'Student deleted'}, 202
-        except KeyError:
-            return {'message': 'Student not found'}, 404
-        except Exception as e:
-            return {'message': "Student is a Muggle"}, 500
+        student = StudentModel.query.get(student_id)
+        if student:
+            student.delete()
+            return { 'message': f'Student: {student.student} Ezpelled!' }, 202
+        return {'message': "Student not found in campus"}, 400
 
 @bp.route('/student')   
 class UserList(MethodView):

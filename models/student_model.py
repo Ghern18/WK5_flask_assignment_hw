@@ -20,4 +20,16 @@ class StudentModel(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def commit(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def from_dict(self, student_dict):
+        for k, v in student_dict.items():
+            if k != 'password':
+                setattr(self, k, v)
+            else:
+                setattr(self, 'password_hash', generate_password_hash(v))
+        # self.password_hash = v
+
  

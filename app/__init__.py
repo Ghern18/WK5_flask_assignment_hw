@@ -5,7 +5,6 @@ from flask_migrate import Migrate
 
 from Config import Config
 
-
 app = Flask(__name__)
 app.config.from_object(Config)
 api = Api(app)
@@ -13,8 +12,8 @@ api = Api(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-from models.student_model import StudentModel
-from models.spell_model import SpellModel
+from models.student_model import UserModel
+from models.SpellModel import PostModel
 
 from resources.student import bp as student_bp
 api.register_blueprint(student_bp)
