@@ -1,39 +1,39 @@
-from flask import Flask, request
-from uuid import uuid4
+from flask import request
+
 from flask.views import MethodView
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_smorest import abort
 from . import bp
-from db import students
-
-
-from schemas import StudentSchema
+from schemas import StudentSchema, StudentSchemaNested
 from models.student_model import StudentModel
 
 
 @bp.route('/student/<student_id>')
 class Student(MethodView):
 
-    @bp.response(200,StudentSchema)
+    @bp.response(200,StudentSchemaNested)
     def get(self,student_id):
         student = StudentModel.query.get(student_id)
         if student:
+            print(student.spells.all())
             return student
         else:
             abort(400, message='Studnet not found in campus')
-        
+
+    @jwt_required()   
     @bp.arguments(StudentSchema)
     def put(self, student_data, student_id):
-        student = StudentModel.query.get(student_id)
-        if student:
+        student = StudentModel.query.get(get_jwt_identity())
+        if student and student.id == student_id:
             student.from_dict(student_data)
             student.commit()
             return { 'message': f'{student.student} sorted in a house'}, 202
         abort(400, message = "Student not found in campus")
 
-
+    @jwt_required()
     def delete(self, student_id):
-        student = StudentModel.query.get(student_id)
-        if student:
+        student = StudentModel.query.get(get_jwt_identity())
+        if student==student_id:
             student.delete()
             return { 'message': f'Student: {student.student} Expelled!' }, 202
         return {'message': "Student not found in campus"}, 400
@@ -55,6 +55,31 @@ class StudentList(MethodView):
         except:
             abort(400, message='Student Sorted in the Wrong House')
 
+      
+@bp.route('/student/follow/<followed_id>')
+class FollowUser(MethodView):
+
+  @jwt_required()
+  def post(self, followed_id):
+    followed = StudentModel.query.get(followed_id)
+    follower =StudentModel.query.get(get_jwt_identity())
+    if follower and followed:
+      follower.follow(followed)
+      followed.commit()
+      return {'message':'followed student'}
+    else:
+      return {'message':'student not found on campus'}, 400
+    
+  @jwt_required()  
+  def put(self, followed_id):
+    followed = StudentModel.query.get(followed_id)
+    follower = StudentModel.query.get(get_jwt_identity())
+    if follower and followed:
+      follower.unfollow(followed)
+      followed.commit()
+      return {'message':'unfollowed student'}
+    else:
+      return {'message':'student not found in campus'}, 400
 
 #@bp.response(200, StudentSchema(many=True))
 #@bp.get('/student')
