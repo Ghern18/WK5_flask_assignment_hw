@@ -1,35 +1,39 @@
-from flask import Flask, request
+from flask import request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from uuid import uuid4
 from flask.views import MethodView
+from flask_smorest import abort
 
-from models.SpellModel import SpellModel
-from schemas import SpellSchema
-from db import spells, students
+from models import SpellModel
+from schemas import SpellSchema, SpellSchemaNested
+
 from . import bp
 
 
 @bp.route('/<spell_id>')
 class Spell(MethodView):
 
-    @bp.response(200, SpellSchema)
+    @bp.response(200, SpellSchemaNested)
     def get(self, spell_id):
         Spell = SpellModel.query.get(spell_id)
         if Spell:
             return Spell 
         abort(400, message='Spell is Forbidden to Cast')
    
+    @jwt_required
     @bp.arguments(SpellSchema)
     def put(self, spell_data ,spell_id):
         spell = SpellModel.query.get(spell_id)
-        if spell:
+        if spell and spell.student_id == get_jwt_identity():
             spell.body = spell_data['body']
-            spell.commit()
-            return {'message': "Spell is Forbidden to Cast"}, 400
+            spell.commit()   
+            return {'message': 'spell rendered'}, 201
+        return {'message': "Spell is Forbidden to Cast"}, 400
 
-
+    @jwt_required()
     def delete(self, spell_id):
         spell = SpellModel.query.get(spell_id)
-        if spell:
+        if spell and spell.student_id == get_jwt_identity():
             spell.delete()
             return {"message": "Spell Redacted"}, 202
         return {'message':"Spell is Forbidden to Cast"}, 400
@@ -47,7 +51,7 @@ class SpellList(MethodView):
     def post(self, spell_data):
         try:
             spell = SpellModel()
-            spell.student_id = spell_data['student_id']
+            spell.student_id = get_jwt_identity() 
             spell.body = spell_data['body']
             spell.commit()
             return { 'message': "Spell Casted" }, 201
